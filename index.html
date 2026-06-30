@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单管理系统</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <span class="logo-icon">📦</span>
+                    <span class="logo-text">订单管理系统</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <nav class="top-nav">
+                    <a href="#" class="top-nav-item active">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                            <polyline points="9 22 9 12 15 12 15 22"/>
+                        </svg>
+                        <span>订单管理</span>
+                    </a>
+                    <a href="#" class="top-nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        <span>产品管理</span>
+                    </a>
+                    <a href="#" class="top-nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                            <circle cx="9" cy="7" r="4"/>
+                            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                        </svg>
+                        <span>FBA发货</span>
+                    </a>
+                    <a href="#" class="top-nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="9" y1="3" x2="9" y2="21"/>
+                        </svg>
+                        <span>FBA标签</span>
+                    </a>
+                    <a href="#" class="top-nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 11H5"/>
+                            <path d="M12 19V7"/>
+                        </svg>
+                        <span>退发货管理</span>
+                    </a>
+                    <a href="#" class="top-nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                            <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        <span>客服服务</span>
+                    </a>
+                    <a href="#" class="top-nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 11V7a4 4 0 0 0-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                        <span>仓库管理</span>
+                    </a>
+                    <a href="#" class="top-nav-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                        <span>系统管理</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="header-btn" title="系统设置">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+                <button class="header-btn" title="帮助文档">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                </button>
+                <div class="user-info">
+                    <span class="user-name">admin</span>
+                    <button class="user-avatar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                            <circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">订单费用查询</h1>
+            </div>
+
+            <div class="search-container">
+                <div class="search-grid">
+                    <div class="search-item">
+                        <label class="search-label" for="status">状态</label>
+                        <div class="search-input-wrapper">
+                            <select id="status" class="search-select" aria-label="订单状态">
+                                <option value="all">全部</option>
+                                <option value="pending">待发货</option>
+                                <option value="shipped">已发货</option>
+                                <option value="abnormal">异常</option>
+                                <option value="other">其它</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="search-item">
+                        <label class="search-label" for="warehouse">仓库</label>
+                        <div class="search-input-wrapper">
+                            <select id="warehouse" class="search-select" aria-label="选择仓库">
+                                <option value="">-请选择-</option>
+                                <option value="warehouse1">仓库A</option>
+                                <option value="warehouse2">仓库B</option>
+                                <option value="warehouse3">仓库C</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="search-item">
+                        <label class="search-label" for="platformType">平台类型</label>
+                        <div class="search-input-wrapper">
+                            <select id="platformType" class="search-select" aria-label="平台类型">
+                                <option value="all">全部</option>
+                                <option value="amazon">Amazon</option>
+                                <option value="ebay">eBay</option>
+                                <option value="other">OTHER</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="search-item">
+                        <label class="search-label" for="shippingMethod">派送方式</label>
+                        <div class="search-input-wrapper">
+                            <select id="shippingMethod" class="search-select" aria-label="派送方式">
+                                <option value="all">全部</option>
+                                <option value="ZYBQ_FEDEX">ZYBQ_FEDEX</option>
+                                <option value="ZYBQ_SY">ZYBQ_SY</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="search-item">
+                        <label class="search-label" for="createDateFrom">创建时间 - 从</label>
+                        <div class="search-input-wrapper">
+                            <input type="date" id="createDateFrom" class="search-input" placeholder="选择日期" aria-label="创建时间起始">
+                            <button class="clear-btn" data-target="createDateFrom" aria-label="清除创建时间">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="search-item">
+                        <label class="search-label" for="createDateTo">创建时间 - 到</label>
+                        <div class="search-input-wrapper">
+                            <input type="date" id="createDateTo" class="search-input" placeholder="选择日期" aria-label="创建时间截止">
+                            <button class="clear-btn" data-target="createDateTo" aria-label="清除创建时间">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="search-item">
+                        <label class="search-label" for="weightFrom">重量区间 - 从</label>
+                        <div class="search-input-wrapper">
+                            <input type="number" id="weightFrom" class="search-input" placeholder="最小重量" aria-label="最小重量" min="0" step="0.001">
+                            <button class="clear-btn" data-target="weightFrom" aria-label="清除最小重量">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="search-item">
+                        <label class="search-label" for="weightTo">重量区间 - 到</label>
+                        <div class="search-input-wrapper">
+                            <input type="number" id="weightTo" class="search-input" placeholder="最大重量" aria-label="最大重量" min="0" step="0.001">
+                            <button class="clear-btn" data-target="weightTo" aria-label="清除最大重量">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="search-item">
+                        <label class="search-label" for="costFrom">费用区间 - 从</label>
+                        <div class="search-input-wrapper">
+                            <input type="number" id="costFrom" class="search-input" placeholder="最小费用" aria-label="最小费用" min="0" step="0.01">
+                            <button class="clear-btn" data-target="costFrom" aria-label="清除最小费用">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="search-item">
+                        <label class="search-label" for="costTo">费用区间 - 到</label>
+                        <div class="search-input-wrapper">
+                            <input type="number" id="costTo" class="search-input" placeholder="最大费用" aria-label="最大费用" min="0" step="0.01">
+                            <button class="clear-btn" data-target="costTo" aria-label="清除最大费用">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="search-item">
+                        <label class="search-label" for="orderNo">单号</label>
+                        <div class="search-input-wrapper">
+                            <input type="text" id="orderNo" class="search-input" placeholder="支持多个精确匹配，中间以空格隔开" aria-label="订单号搜索">
+                            <button class="clear-btn" data-target="orderNo" aria-label="清除订单号">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="search-item">
+                        <label class="search-label" for="platformStore">平台店铺</label>
+                        <div class="search-input-wrapper">
+                            <input type="text" id="platformStore" class="search-input" placeholder="输入平台店铺" aria-label="平台店铺">
+                            <button class="clear-btn" data-target="platformStore" aria-label="清除平台店铺">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="search-item">
+                        <label class="search-label" for="sellerAccount">卖家账号</label>
+                        <div class="search-input-wrapper">
+                            <select id="sellerAccount" class="search-select" aria-label="卖家账号">
+                                <option value="all">全部</option>
+                                <option value="seller1">卖家账号1</option>
+                                <option value="seller2">卖家账号2</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="search-item">
+                        <label class="search-label" for="platform">平台</label>
+                        <div class="search-input-wrapper">
+                            <select id="platform" class="search-select" aria-label="平台">
+                                <option value="all">全部</option>
+                                <option value="US">美国</option>
+                                <option value="CA">加拿大</option>
+                                <option value="UK">英国</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="search-item search-item-full">
+                        <div class="search-actions">
+                            <button class="btn btn-primary" id="searchBtn">查询</button>
+                            <button class="btn btn-secondary" id="exportBtn">导出</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-bar">
+                <div class="summary-item">
+                    <span class="summary-label">总金额:</span>
+                    <span class="summary-value">1,009,700 RMB</span>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" aria-label="订单费用数据">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-column">
+                                <input type="checkbox" id="selectAll" aria-label="全选">
+                            </th>
+                            <th>NO.</th>
+                            <th>单号</th>
+                            <th>业务类型</th>
+                            <th>平台</th>
+                            <th>平台店铺</th>
+                            <th>订单内件数</th>
+                            <th>产品信息</th>
+                            <th>状态</th>
+                            <th>费用发生时间</th>
+                            <th>运输方式</th>
+                            <th>国家</th>
+                            <th>计费重</th>
+                            <th>计费单位</th>
+                            <th>运费</th>
+                            <th>燃油费</th>
+                            <th>挂号费</th>
+                            <th>仓储费</th>
+                            <th>关税</th>
+                            <th>操作费</th>
+                            <th>其它</th>
+                            <th>总成本</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="checkbox" aria-label="选择订单1"></td>
+                            <td>1</td>
+                            <td class="order-id">
+                                <div>订单号:DEMO-260625-0001</div>
+                                <div>参考号:DEMO-20260625-0010</div>
+                                <div>跟踪号:01112312312321</div>
+                            </td>
+                            <td>包裹订单</td>
+                            <td>OTHER</td>
+                            <td>1</td>
+                            <td>SKU:TESTSKU<br>数量:1</td>
+                            <td><span class="status status-pending">待发货</span></td>
+                            <td>2026-06-25</td>
+                            <td>ZYBQ_FEDEX</td>
+                            <td>US</td>
+                            <td>12.000</td>
+                            <td>KG</td>
+                            <td>0.000 RMB</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>13,600 RMB</td>
+                            <td>13,600 RMB</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" aria-label="选择订单2"></td>
+                            <td>2</td>
+                            <td class="order-id">
+                                <div>订单号:DEMO-260624-0001</div>
+                                <div>参考号:DEMO-20260624-0003</div>
+                                <div>跟踪号:8217894721</div>
+                            </td>
+                            <td>包裹订单</td>
+                            <td>OTHER</td>
+                            <td>1</td>
+                            <td>SKU:0123456789<br>数量:1</td>
+                            <td><span class="status status-pending">待发货</span></td>
+                            <td>2026-06-24</td>
+                            <td>ZYBQ_SY</td>
+                            <td>US</td>
+                            <td>123.000</td>
+                            <td>KG</td>
+                            <td>0.000 RMB</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>122,400 RMB</td>
+                            <td>122,400 RMB</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" aria-label="选择订单3"></td>
+                            <td>3</td>
+                            <td class="order-id">
+                                <div>订单号:DEMO-260612-0002</div>
+                                <div>参考号:DEMO-20260612-0004</div>
+                                <div>跟踪号:85351111111111</div>
+                            </td>
+                            <td>包裹订单</td>
+                            <td>OTHER</td>
+                            <td>5</td>
+                            <td>SKU:ADADAD<br>数量:5</td>
+                            <td><span class="status status-pending">待发货</span></td>
+                            <td>2026-06-12</td>
+                            <td>ZYBQ_SY</td>
+                            <td>US</td>
+                            <td>315.000</td>
+                            <td>KG</td>
+                            <td>0.000 RMB</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>170,000 RMB</td>
+                            <td>170,000 RMB</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" aria-label="选择订单4"></td>
+                            <td>4</td>
+                            <td class="order-id">
+                                <div>订单号:DEMO-260612-0001</div>
+                                <div>参考号:DEMO-20260612-0002</div>
+                                <div>跟踪号:202606121502</div>
+                            </td>
+                            <td>包裹订单</td>
+                            <td>OTHER</td>
+                            <td>1</td>
+                            <td>SKU:ADADAD<br>数量:1</td>
+                            <td><span class="status status-pending">待发货</span></td>
+                            <td>2026-06-12</td>
+                            <td>ZYBQ_SY</td>
+                            <td>US</td>
+                            <td>63.000</td>
+                            <td>KG</td>
+                            <td>0.000 RMB</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>34,000 RMB</td>
+                            <td>34,000 RMB</td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" aria-label="选择订单5"></td>
+                            <td>5</td>
+                            <td class="order-id">
+                                <div>订单号:DEMO-260609-0001</div>
+                                <div>参考号:DEMO-20260609-0002</div>
+                                <div>跟踪号:DEMO-260609-0001</div>
+                            </td>
+                            <td>包裹订单</td>
+                            <td>OTHER</td>
+                            <td>1</td>
+                            <td>SKU:0123456789<br>数量:1</td>
+                            <td><span class="status status-shipped">已发货</span></td>
+                            <td>2026-06-09</td>
+                            <td>ZYBQ_SY</td>
+                            <td>US</td>
+                            <td>123.000</td>
+                            <td>KG</td>
+                            <td>0.000 RMB</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>0.000</td>
+                            <td>122,400 RMB</td>
+                            <td>122,400 RMB</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    <span>共 2181 条记录</span>
+                </div>
+                <div class="pagination" role="navigation" aria-label="订单分页">
+                    <button class="pagination-btn" disabled aria-label="首页">First</button>
+                    <button class="pagination-btn" disabled aria-label="上一页">&lt; Previous</button>
+                    <button class="pagination-btn active" aria-label="第1页">1</button>
+                    <button class="pagination-btn" aria-label="第2页">2</button>
+                    <button class="pagination-btn" aria-label="第3页">3</button>
+                    <button class="pagination-btn" aria-label="第4页">4</button>
+                    <button class="pagination-btn" aria-label="第5页">5</button>
+                    <button class="pagination-btn" aria-label="第6页">6</button>
+                    <span class="pagination-ellipsis">...</span>
+                    <button class="pagination-btn" aria-label="第109页">109</button>
+                    <button class="pagination-btn" aria-label="第110页">110</button>
+                    <button class="pagination-btn" aria-label="下一页">Next &gt;</button>
+                    <button class="pagination-btn" aria-label="末页">Last</button>
+                    <div class="pagination-input-group">
+                        <span>Per Page:</span>
+                        <select class="pagination-select" aria-label="每页条数">
+                            <option>20</option>
+                            <option>50</option>
+                            <option>100</option>
+                        </select>
+                    </div>
+                    <span class="pagination-total">Total: 2181</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
