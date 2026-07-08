@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单费用查询 - ELSA</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@4/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#2a3b7d', 'primary-light': '#3a4ca7', secondary: '#36CFC9', danger: '#F53F3F', dark: '#1D2129' },
+                    boxShadow: { 'card': '0 2px 8px rgba(0,0,0,0.05)', 'header': '0 2px 4px rgba(0,0,0,0.05)' }
+                }
+            }
+        };
+        mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose', logLevel: 3 });
+        const DATA_CONFIG = { pageId: 'order-manage', dataFile: 'order-manage2/data/order-manage-data.json', apiBase: 'http://localhost:3100/api/data', version: '1.0.0' };
+        const renderer = new marked.Renderer();
+        renderer.code = function(code, language) {
+            if (language === 'mermaid') return '<div class="mermaid-container" onclick="openMermaidModal(this)"><div class="mermaid">' + code + '</div><span class="mermaid-hint"><i class="fa fa-search-plus mr-1"></i>点击放大</span></div>';
+            return '<pre><code class="language-' + language + '">' + code + '</code></pre>';
+        };
+        marked.setOptions({ renderer: renderer, breaks: true, gfm: true });
+    </script>
+</head>
+<body class="font-sans bg-gray-50 text-neutral-800 min-h-screen">
+    <!-- 切换标签 -->
+    <div class="tabs fixed bottom-8 right-8 z-40">
+        <button id="tab-prototype" class="tab active" onclick="switchMainTab('prototype')">原型</button>
+        <button id="tab-prd" class="tab" onclick="switchMainTab('prd')">PRD</button>
+        <button id="tab-testcases" class="tab" onclick="switchMainTab('testcases')">测试用例</button>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-primary text-white shadow-header sticky top-0 z-50">
+        <div class="container mx-auto px-2 sm:px-3 lg:px-4">
+            <div class="flex justify-between items-center h-14">
+                <span class="text-lg font-semibold">ELSA - 订单管理系统</span>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm">admin</span>
+                    <i class="fa fa-user-circle text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- PRD 区域 -->
+    <main id="main-prd" class="main-content" style="display:none;">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex gap-6">
+                <aside class="w-64 flex-shrink-0 hidden lg:block">
+                    <div class="toc sticky top-4"><div class="toc-title"><i class="fa fa-list-alt mr-2"></i>目录导航</div><div id="toc-nav"></div></div>
+                </aside>
+                <div class="flex-1 min-w-0">
+                    <div class="bg-white rounded-2xl shadow-xl p-8 lg:p-12">
+                        <div id="prd-content" class="prose max-w-none">
+                            <h1 class="text-3xl font-bold text-primary mb-6">订单费用查询模块 PRD</h1>
+                            <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">1. 模块概述</h2>
+                            <p class="text-gray-600 mb-4">订单费用查询模块用于管理和查询电商订单的物流费用信息，支持多维度筛选、数据导出和费用统计功能。</p>
+                            <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">2. 功能需求</h2>
+                            <h3 class="text-xl font-medium text-gray-700 mt-6 mb-3">2.1 查询功能</h3>
+                            <ul class="list-disc pl-6 text-gray-600 space-y-2">
+                                <li>支持按状态码标签筛选（全部/待发货/已发货）</li>
+                                <li>支持按仓库代码筛选（MD001/DE001，根据账号绑定动态展示）</li>
+                                <li>支持按承运商筛选（FEDEX/UPS/USPS/AMAZON/GOFO/LTL/One-Touch/未知）</li>
+                                <li>支持按配送渠道筛选（ZYBQ_FEDEX/ZYBQ_UPS/ZYBQ_SY/ZYBQ_DS）</li>
+                                <li>支持按创建时间范围、重量区间、费用区间筛选</li>
+                                <li>支持按出库单号精确匹配（多个以空格隔开）</li>
+                            </ul>
+                            <h3 class="text-xl font-medium text-gray-700 mt-6 mb-3">2.2 数据展示</h3>
+                            <ul class="list-disc pl-6 text-gray-600 space-y-2">
+                                <li>表格展示订单详细信息（出库单号、客户代码、承运商、平台店铺、费用明细等共22列）</li>
+                                <li>实时统计当前筛选条件下的订单总金额（红色高亮，右侧显示）</li>
+                                <li>支持分页浏览（默认每页10条）</li>
+                            </ul>
+                            <h3 class="text-xl font-medium text-gray-700 mt-6 mb-3">2.3 操作功能</h3>
+                            <ul class="list-disc pl-6 text-gray-600 space-y-2">
+                                <li>导出：弹窗选择导出字段，默认全选，导出为Excel文件</li>
+                                <li>重置：清空所有筛选条件，恢复默认列表</li>
+                                <li>查询：应用所有筛选条件，刷新列表和总金额</li>
+                            </ul>
+                            <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">3. 业务规则</h2>
+                            <ul class="list-disc pl-6 text-gray-600 space-y-2">
+                                <li>总成本 = 出库费 + 基础价 + 住宅附加费 + 超长费 + 超重费 + 超大件费 + 偏远 + 超偏远 + 燃油附加费</li>
+                                <li>状态码逻辑：待发货 = 待确认/待拣货/待打印/待配货/待复核；已发货 = 已出库</li>
+                                <li>仓库选项根据当前账号绑定的仓库代码动态展示</li>
+                                <li>数据按费用发生时间倒序排列</li>
+                            </ul>
+                            <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">4. 数据字段说明</h2>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-sm border border-gray-200 rounded">
+                                    <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">字段名</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">说明</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">类型</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">存储长度</th></tr></thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <tr><td class="px-3 py-2">出库单号</td><td class="px-3 py-2">订单唯一标识</td><td class="px-3 py-2">字符型</td><td class="px-3 py-2">64</td></tr>
+                                        <tr><td class="px-3 py-2">客户代码</td><td class="px-3 py-2">客户唯一标识</td><td class="px-3 py-2">字符型</td><td class="px-3 py-2">64</td></tr>
+                                        <tr><td class="px-3 py-2">承运商</td><td class="px-3 py-2">FEDEX/UPS/USPS等</td><td class="px-3 py-2">枚举型</td><td class="px-3 py-2">32</td></tr>
+                                        <tr><td class="px-3 py-2">出库费</td><td class="px-3 py-2">出库操作费用</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">基础价</td><td class="px-3 py-2">基础运输价格</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">住宅附加费</td><td class="px-3 py-2">住宅配送附加费</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">超长费</td><td class="px-3 py-2">超长包裹附加费</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">超重费</td><td class="px-3 py-2">超重包裹附加费</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">超大件费</td><td class="px-3 py-2">超大件附加费</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">偏远</td><td class="px-3 py-2">偏远地区附加费</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">超偏远</td><td class="px-3 py-2">超偏远地区附加费</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">燃油附加费</td><td class="px-3 py-2">燃油附加费用</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">总成本</td><td class="px-3 py-2">各项费用之和</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">状态</td><td class="px-3 py-2">待确认/待拣货/待打印/待配货/待复核/已出库</td><td class="px-3 py-2">枚举型</td><td class="px-3 py-2">32</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">5. 业务流程图</h2>
+                            <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                                <div class="mermaid">
+graph TD
+    A[用户进入订单费用查询页面] --> B[系统加载订单费用数据]
+    B --> C[展示订单列表和总金额]
+    C --> D{用户操作}
+    D -->|点击状态码标签| E[筛选对应状态订单]
+    D -->|选择仓库/承运商/渠道| F[按条件筛选]
+    D -->|选择时间/输入重量费用区间| G[按范围筛选]
+    D -->|输入出库单号| H[精确匹配订单]
+    D -->|点击查询| I[应用所有筛选条件]
+    D -->|点击重置| J[清空所有条件恢复默认]
+    D -->|点击导出| K[弹出字段选择弹窗]
+    E --> I
+    F --> I
+    G --> I
+    H --> I
+    I --> L[刷新列表更新总金额]
+    J --> B
+    L --> D
+    K --> M[勾选字段后导出Excel]
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mermaid 模态框 -->
+    <div id="mermaidModal" class="mermaid-modal" onclick="closeMermaidModal(event)">
+        <div class="mermaid-modal-content" onclick="event.stopPropagation()">
+            <button class="mermaid-modal-close" onclick="closeMermaidModal()"><i class="fa fa-times"></i></button>
+            <div class="mermaid-modal-title"><i class="fa fa-sitemap mr-2"></i>流程图预览</div>
+            <div id="mermaidModalContent" class="mermaid-modal-svg"></div>
+        </div>
+    </div>
+
+    <!-- 测试用例区域 -->
+    <main id="main-testcases" class="main-content" style="display:none;">
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex gap-6">
+                <aside class="w-64 flex-shrink-0 hidden lg:block">
+                    <div class="toc sticky top-4"><div class="toc-title"><i class="fa fa-list-alt mr-2"></i>目录导航</div><div id="testcases-toc-nav"></div></div>
+                </aside>
+                <div class="flex-1 min-w-0">
+                    <div class="bg-white rounded-2xl shadow-xl p-8 lg:p-12">
+                        <div id="testcases-content" class="prose max-w-none">
+                            <h1 class="text-3xl font-bold text-primary mb-6">订单费用查询 - 测试用例</h1>
+                            <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">1. 查询功能测试</h2>
+                            <table class="min-w-full text-sm border border-gray-200 rounded mb-6">
+                                <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">用例ID</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">测试场景</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">操作步骤</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">预期结果</th></tr></thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr><td class="px-3 py-2">TC001</td><td class="px-3 py-2">默认加载</td><td class="px-3 py-2">进入页面</td><td class="px-3 py-2">显示全部状态订单</td></tr>
+                                    <tr><td class="px-3 py-2">TC002</td><td class="px-3 py-2">待发货筛选</td><td class="px-3 py-2">点击"待发货"标签</td><td class="px-3 py-2">显示待确认/待拣货/待打印/待配货/待复核订单</td></tr>
+                                    <tr><td class="px-3 py-2">TC003</td><td class="px-3 py-2">已发货筛选</td><td class="px-3 py-2">点击"已发货"标签</td><td class="px-3 py-2">显示已出库订单</td></tr>
+                                    <tr><td class="px-3 py-2">TC004</td><td class="px-3 py-2">仓库筛选</td><td class="px-3 py-2">选择MD001，点击查询</td><td class="px-3 py-2">仅显示MD001仓库订单</td></tr>
+                                    <tr><td class="px-3 py-2">TC005</td><td class="px-3 py-2">承运商筛选</td><td class="px-3 py-2">选择FEDEX，点击查询</td><td class="px-3 py-2">仅显示FEDEX承运订单</td></tr>
+                                    <tr><td class="px-3 py-2">TC006</td><td class="px-3 py-2">出库单号查询</td><td class="px-3 py-2">输入单号，点击查询</td><td class="px-3 py-2">显示匹配订单</td></tr>
+                                    <tr><td class="px-3 py-2">TC007</td><td class="px-3 py-2">多条件组合</td><td class="px-3 py-2">选择状态+仓库+承运商，点击查询</td><td class="px-3 py-2">显示同时满足条件的订单</td></tr>
+                                    <tr><td class="px-3 py-2">TC008</td><td class="px-3 py-2">重量区间筛选</td><td class="px-3 py-2">输入1-5，点击查询</td><td class="px-3 py-2">显示重量在1-5kg的订单</td></tr>
+                                    <tr><td class="px-3 py-2">TC009</td><td class="px-3 py-2">费用区间筛选</td><td class="px-3 py-2">输入50-100，点击查询</td><td class="px-3 py-2">显示费用在50-100的订单</td></tr>
+                                </tbody>
+                            </table>
+                            <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">2. 操作功能测试</h2>
+                            <table class="min-w-full text-sm border border-gray-200 rounded">
+                                <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">用例ID</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">测试场景</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">预期结果</th></tr></thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr><td class="px-3 py-2">TC010</td><td class="px-3 py-2">点击导出按钮</td><td class="px-3 py-2">弹出字段选择弹窗，默认全选</td></tr>
+                                    <tr><td class="px-3 py-2">TC011</td><td class="px-3 py-2">勾选部分字段导出</td><td class="px-3 py-2">仅导出勾选字段</td></tr>
+                                    <tr><td class="px-3 py-2">TC012</td><td class="px-3 py-2">点击重置按钮</td><td class="px-3 py-2">清空所有筛选条件，恢复默认</td></tr>
+                                    <tr><td class="px-3 py-2">TC013</td><td class="px-3 py-2">全选/取消全选</td><td class="px-3 py-2">所有行checkbox同步选中/取消</td></tr>
+                                    <tr><td class="px-3 py-2">TC014</td><td class="px-3 py-2">总金额实时计算</td><td class="px-3 py-2">筛选后总金额自动更新</td></tr>
+                                    <tr><td class="px-3 py-2">TC015</td><td class="px-3 py-2">翻页功能</td><td class="px-3 py-2">点击页码切换数据</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 原型页面 -->
+    <main id="main-prototype" class="main-content active flex-1 overflow-y-auto bg-gray-50">
+        <div class="container mx-auto px-2 py-6">
+            <!-- 搜索卡片（最上方） -->
+            <div class="bg-white rounded shadow-card p-4 mb-4">
+                <div class="search-grid">
+                    <div class="search-field">
+                        <label class="search-label">出库单号</label>
+                        <div class="search-input-group">
+                            <select id="filterOrderNoMode" class="search-select search-select-mode" onchange="updateOrderNoPlaceholder()">
+                                <option value="exact">精确查询</option>
+                                <option value="fuzzy">模糊查询</option>
+                            </select>
+                            <input type="text" id="filterOrderNo" class="search-input search-input-group-field" placeholder="支持多个精确匹配，中间以空格隔开">
+                        </div>
+                    </div>
+                    <div class="search-field">
+                        <label class="search-label">仓库</label>
+                        <select id="filterWarehouse" class="search-select">
+                            <option value="">-请选择-</option>
+                            <option value="MD001">MD001</option>
+                            <option value="DE001">DE001</option>
+                        </select>
+                    </div>
+                    <div class="search-field">
+                        <label class="search-label">承运商</label>
+                        <select id="filterCarrier" class="search-select">
+                            <option value="">-请选择-</option>
+                            <option value="FEDEX">FEDEX</option>
+                            <option value="UPS">UPS</option>
+                            <option value="USPS">USPS</option>
+                            <option value="AMAZON">AMAZON</option>
+                            <option value="GOFO">GOFO</option>
+                            <option value="LTL">LTL</option>
+                            <option value="One-Touch">One-Touch</option>
+                            <option value="unknown">未知</option>
+                        </select>
+                    </div>
+                    <div class="search-field" style="position:relative;">
+                        <label class="search-label">配送渠道</label>
+                        <div class="cascading-select-wrapper" id="shippingChannelWrapper">
+                            <div class="cascading-select-trigger" onclick="toggleShippingChannelDropdown()">
+                                <span class="cascading-select-placeholder" id="shippingChannelPlaceholder">请选择</span>
+                                <i class="fa fa-chevron-down cascading-select-arrow"></i>
+                            </div>
+                            <div class="cascading-select-dropdown" id="shippingChannelDropdown">
+                                <div class="cascading-select-body">
+                                    <div class="cascading-select-level1">
+                                        <div class="cascading-select-item" onclick="toggleShippingLevel2('non-discovery')">
+                                            <span>非发现快递</span>
+                                            <i class="fa fa-chevron-right"></i>
+                                        </div>
+                                        <div class="cascading-select-item" onclick="toggleShippingLevel2('discovery')">
+                                            <span>发现快递</span>
+                                            <i class="fa fa-chevron-right"></i>
+                                        </div>
+                                    </div>
+                                    <div class="cascading-select-level2" id="shippingLevel2Container" style="display:none;">
+                                        <div class="cascading-select-back" onclick="backToShippingLevel1()">
+                                            <i class="fa fa-chevron-left"></i>
+                                            <span id="shippingLevel2Title"></span>
+                                        </div>
+                                        <div class="cascading-select-options" id="shippingLevel2Options"></div>
+                                    </div>
+                                </div>
+                                <div class="cascading-select-actions">
+                                    <button class="erp-btn erp-btn-secondary" onclick="cancelShippingChannel()">取消</button>
+                                    <button class="erp-btn erp-btn-primary" onclick="confirmShippingChannel()">查询</button>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="filterShippingChannel" value="">
+                    </div>
+                    <div class="search-field">
+                        <label class="search-label">创建时间</label>
+                        <div class="range-input">
+                            <input type="date" id="filterDateFrom" class="search-input range-input-field">
+                            <span class="range-separator">-</span>
+                            <input type="date" id="filterDateTo" class="search-input range-input-field">
+                        </div>
+                    </div>
+                    <div class="search-field">
+                        <label class="search-label">重量区间</label>
+                        <div class="range-input">
+                            <input type="number" id="filterWeightFrom" class="search-input range-input-field" placeholder="最小" min="0" step="0.001">
+                            <span class="range-separator">-</span>
+                            <input type="number" id="filterWeightTo" class="search-input range-input-field" placeholder="最大" min="0" step="0.001">
+                        </div>
+                    </div>
+                    <div class="search-field">
+                        <label class="search-label">费用区间</label>
+                        <div class="range-input">
+                            <input type="number" id="filterCostFrom" class="search-input range-input-field" placeholder="最小" min="0" step="0.01">
+                            <span class="range-separator">-</span>
+                            <input type="number" id="filterCostTo" class="search-input range-input-field" placeholder="最大" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="search-actions-right">
+                        <button class="erp-btn erp-btn-secondary" onclick="handleReset()">
+                            <i class="fa fa-refresh mr-1.5"></i> 重置
+                        </button>
+                        <button class="erp-btn erp-btn-primary" onclick="handleSearch()">
+                            <i class="fa fa-search mr-1.5"></i> 查询
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 状态按钮（搜索下方） -->
+            <div class="bg-white rounded shadow-card p-4 mb-4">
+                <div class="flex items-center flex-wrap gap-3">
+                    <div class="status-tabs">
+                        <button class="status-tab active" data-status="" onclick="handleStatusTab(this)">全部</button>
+                        <button class="status-tab" data-status="pending" onclick="handleStatusTab(this)">待发货</button>
+                        <button class="status-tab" data-status="shipped" onclick="handleStatusTab(this)">已发货</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 汇总栏（导出按钮在左边，总金额在右边） -->
+            <div class="bg-white rounded shadow-card p-4 mb-4">
+                <div class="flex justify-between items-center">
+                    <button class="erp-btn erp-btn-secondary" onclick="openExportModal()">
+                        <i class="fa fa-upload mr-1.5"></i> 导出
+                    </button>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm text-gray-600">总金额:</span>
+                        <span id="totalAmount" class="text-xl font-bold text-danger">0.00 RMB</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据表格 -->
+            <div class="bg-white rounded shadow-card overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-neutral-200 text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">出库单号</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">承运商</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">平台店铺</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">订单内件数</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">产品信息</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">状态</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">费用发生时间</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">配送渠道</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">国家</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">计费重</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">计费单位</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">出库费</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">基础价</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">住宅附加费</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">超长费</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">超重费</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">超大件费</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">偏远</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">超偏远</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">燃油附加费</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">总成本</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-neutral-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="flex justify-between items-center mt-4 bg-white rounded shadow-card px-4 py-3">
+                <div class="text-sm text-gray-500">共 <span id="totalCount">0</span> 条记录</div>
+                <div id="pagination" class="flex gap-1"></div>
+            </div>
+
+            <!-- 逻辑说明 -->
+            <div class="bg-white rounded shadow-card mt-4 overflow-hidden">
+                <div class="px-4 py-3 bg-gradient-to-r from-primary/5 to-primary/10 border-b border-primary/20 flex justify-between items-center cursor-pointer" onclick="togglePrdLogic('order-manage')">
+                    <div class="flex items-center">
+                        <i class="fa fa-book text-primary mr-2"></i>
+                        <span class="font-semibold text-primary">逻辑说明</span>
+                        <span class="ml-2 text-xs text-gray-500">(点击展开/收起)</span>
+                    </div>
+                    <i class="fa fa-chevron-down text-primary transition-transform" id="order-manage-logic-icon"></i>
+                </div>
+                <div id="order-manage-logic-content" class="hidden">
+                    <div class="p-4 border-b border-gray-100">
+                        <h4 class="font-semibold text-gray-800 mb-3 flex items-center"><i class="fa fa-database text-primary mr-2"></i>初始化页面（数据展示逻辑）</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm border border-gray-200 rounded">
+                                <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">逻辑项</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">说明</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">数据来源</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">展示规则</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">备注</th></tr></thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">订单列表加载</td><td class="px-3 py-2">页面加载时展示订单费用数据</td><td class="px-3 py-2">订单费用表</td><td class="px-3 py-2">按费用发生时间倒序，默认每页10条</td><td class="px-3 py-2">-</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">总金额统计</td><td class="px-3 py-2">统计当前筛选条件下的订单总金额</td><td class="px-3 py-2">订单费用表</td><td class="px-3 py-2">实时计算，红色高亮，右侧显示</td><td class="px-3 py-2">-</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">状态码筛选</td><td class="px-3 py-2">待发货=待确认/待拣货/待打印/待配货/待复核；已发货=已出库</td><td class="px-3 py-2">订单状态字段</td><td class="px-3 py-2">点击标签即时筛选</td><td class="px-3 py-2">默认展示全部</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="p-4 border-b border-gray-100">
+                        <h4 class="font-semibold text-gray-800 mb-3 flex items-center"><i class="fa fa-search text-primary mr-2"></i>检索条件</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm border border-gray-200 rounded">
+                                <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">检索项</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">输入方式</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">逻辑说明</th></tr></thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">状态码</td><td class="px-3 py-2">标签按钮组</td><td class="px-3 py-2">全部/待发货(待确认+待拣货+待打印+待配货+待复核)/已发货(已出库)</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">仓库</td><td class="px-3 py-2">下拉选择框</td><td class="px-3 py-2">根据账号绑定展示（MD001/DE001）</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">承运商</td><td class="px-3 py-2">下拉选择框</td><td class="px-3 py-2">FEDEX/UPS/USPS/AMAZON/GOFO/LTL/One-Touch/未知</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">配送渠道</td><td class="px-3 py-2">下拉选择框</td><td class="px-3 py-2">ZYBQ_FEDEX/ZYBQ_UPS/ZYBQ_SY/ZYBQ_DS</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">创建时间</td><td class="px-3 py-2">日期范围选择器</td><td class="px-3 py-2">筛选订单创建时间范围</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">重量区间</td><td class="px-3 py-2">数值范围输入框</td><td class="px-3 py-2">最小-最大重量筛选</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">费用区间</td><td class="px-3 py-2">数值范围输入框</td><td class="px-3 py-2">最小-最大费用筛选</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">出库单号</td><td class="px-3 py-2">文本输入框</td><td class="px-3 py-2">支持多个精确匹配，空格隔开</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="p-4 border-b border-gray-100">
+                        <h4 class="font-semibold text-gray-800 mb-3 flex items-center"><i class="fa fa-mouse-pointer text-primary mr-2"></i>按钮逻辑</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm border border-gray-200 rounded">
+                                <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">按钮</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">位置</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">触发动作</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">前置条件</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">后续操作</th></tr></thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">查询</td><td class="px-3 py-2">搜索卡片右侧</td><td class="px-3 py-2">根据筛选条件查询数据</td><td class="px-3 py-2">无</td><td class="px-3 py-2">刷新列表，更新总金额</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">重置</td><td class="px-3 py-2">搜索卡片右侧</td><td class="px-3 py-2">清空所有筛选条件</td><td class="px-3 py-2">无</td><td class="px-3 py-2">恢复默认列表</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">导出</td><td class="px-3 py-2">状态按钮右侧</td><td class="px-3 py-2">弹出字段选择弹窗</td><td class="px-3 py-2">无</td><td class="px-3 py-2">勾选字段后下载Excel</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-gray-800 mb-3 flex items-center"><i class="fa fa-list-alt text-primary mr-2"></i>属性取值逻辑（主表）</h4>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm border border-gray-200 rounded">
+                                <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">字段</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">说明</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">数据来源</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">取值规则</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">显示格式</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">存储长度</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">属性存储类型</th></tr></thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">出库单号</td><td class="px-3 py-2">系统生成的订单编号</td><td class="px-3 py-2">系统生成</td><td class="px-3 py-2">唯一标识</td><td class="px-3 py-2">文本显示</td><td class="px-3 py-2">64</td><td class="px-3 py-2">字符型</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">客户代码</td><td class="px-3 py-2">客户唯一标识</td><td class="px-3 py-2">客户档案</td><td class="px-3 py-2">关联查询</td><td class="px-3 py-2">文本显示</td><td class="px-3 py-2">64</td><td class="px-3 py-2">字符型</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">总成本</td><td class="px-3 py-2">订单总成本金额</td><td class="px-3 py-2">系统计算</td><td class="px-3 py-2">出库费+基础价+住宅附加费+超长费+超重费+超大件费+偏远+超偏远+燃油附加费</td><td class="px-3 py-2">金额格式（2位小数）</td><td class="px-3 py-2">128</td><td class="px-3 py-2">数值型</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">状态</td><td class="px-3 py-2">订单当前状态</td><td class="px-3 py-2">系统维护</td><td class="px-3 py-2">枚举值</td><td class="px-3 py-2">状态徽章</td><td class="px-3 py-2">32</td><td class="px-3 py-2">枚举型</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 导出字段选择弹窗 -->
+    <div id="exportModal" class="export-modal" onclick="closeExportModal(event)">
+        <div class="export-modal-content" onclick="event.stopPropagation()">
+            <div class="export-modal-header">
+                <span class="text-lg font-semibold text-primary"><i class="fa fa-upload mr-2"></i>导出</span>
+                <button class="export-modal-close" onclick="closeExportModal()"><i class="fa fa-times"></i></button>
+            </div>
+            <div class="export-modal-body">
+                <div class="export-select-all">
+                    <label class="flex items-center gap-2 cursor-pointer font-medium">
+                        <input type="checkbox" id="exportSelectAll" checked onchange="handleExportSelectAll(this)">
+                        <span>全选 已选择 <span id="exportSelectedCount">22</span> 个字段</span>
+                    </label>
+                </div>
+                <div class="export-fields-grid" id="exportFieldsGrid">
+                </div>
+            </div>
+            <div class="export-modal-footer">
+                <button class="erp-btn erp-btn-secondary" onclick="closeExportModal()">关闭</button>
+                <button class="erp-btn erp-btn-primary" onclick="handleExportSubmit()">提交</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
