@@ -29,7 +29,7 @@ const exportFieldsConfig = [
     { key: 'weight', label: '计费重' },
     { key: 'weightUnit', label: '计费单位' },
     { key: 'outboundFee', label: '出库费' },
-    { key: 'basePrice', label: '基础价' },
+    { key: 'basePrice', label: '运输费' },
     { key: 'residentialFee', label: '住宅附加费' },
     { key: 'oversizeFee', label: '超长费' },
     { key: 'overweightFee', label: '超重费' },
