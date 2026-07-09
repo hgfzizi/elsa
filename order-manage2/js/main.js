@@ -33,7 +33,8 @@ const exportFieldsConfig = [
     { key: 'remoteFee', label: '偏远' },
     { key: 'extraRemoteFee', label: '超偏远' },
     { key: 'fuelSurcharge', label: '燃油附加费' },
-    { key: 'totalCost', label: '总成本' }
+    { key: 'otherFees', label: '其他费用' },
+    { key: 'totalCost', label: '总费用' }
 ];
 
 let currentPage = 1;
@@ -42,26 +43,26 @@ let currentStatusFilter = '';
 let filteredData = [];
 
 const sampleData = [
-    { id:1, orderNo:'ORD20240101001', customerCode:'CUS001', carrier:'FEDEX', platformStore:'店铺A', itemCount:3, productInfo:'蓝牙耳机 x2, 手机壳 x1', status:'pending_confirm', costTime:'2024-01-15 10:30:00', shippingChannel:'ZYBQ_FEDEX', country:'美国', weight:2.5, weightUnit:'kg', outboundFee:15.00, basePrice:20.00, residentialFee:5.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:8.50, totalCost:48.50 },
-    { id:2, orderNo:'ORD20240101002', customerCode:'CUS002', carrier:'UPS', platformStore:'店铺B', itemCount:1, productInfo:'运动鞋 x1', status:'pending_pick', costTime:'2024-01-15 11:20:00', shippingChannel:'ZYBQ_UPS', country:'英国', weight:1.2, weightUnit:'kg', outboundFee:12.00, basePrice:18.00, residentialFee:3.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:5.00, extraRemoteFee:0.00, fuelSurcharge:6.00, totalCost:44.00 },
-    { id:3, orderNo:'ORD20240101003', customerCode:'CUS001', carrier:'FEDEX', platformStore:'店铺A', itemCount:2, productInfo:'平板电脑 x1, 保护套 x1', status:'pending_print', costTime:'2024-01-15 14:45:00', shippingChannel:'ZYBQ_FEDEX', country:'加拿大', weight:3.8, weightUnit:'kg', outboundFee:18.00, basePrice:25.00, residentialFee:5.00, oversizeFee:10.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:8.00, extraRemoteFee:0.00, fuelSurcharge:9.50, totalCost:75.50 },
-    { id:4, orderNo:'ORD20240101004', customerCode:'CUS003', carrier:'USPS', platformStore:'店铺C', itemCount:5, productInfo:'T恤 x3, 短裤 x2', status:'pending_allocate', costTime:'2024-01-16 09:15:00', shippingChannel:'ZYBQ_SY', country:'美国', weight:4.2, weightUnit:'kg', outboundFee:20.00, basePrice:22.00, residentialFee:5.00, oversizeFee:0.00, overweightFee:8.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:7.50, totalCost:62.50 },
-    { id:5, orderNo:'ORD20240101005', customerCode:'CUS001', carrier:'FEDEX', platformStore:'店铺A', itemCount:1, productInfo:'电视机 x1', status:'shipped', costTime:'2024-01-16 10:00:00', shippingChannel:'ZYBQ_FEDEX', country:'美国', weight:15.0, weightUnit:'kg', outboundFee:35.00, basePrice:45.00, residentialFee:8.00, oversizeFee:20.00, overweightFee:15.00, oversizedFee:25.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:18.00, totalCost:166.00 },
-    { id:6, orderNo:'ORD20240101006', customerCode:'CUS002', carrier:'UPS', platformStore:'店铺B', itemCount:2, productInfo:'手表 x1, 表带 x1', status:'pending_review', costTime:'2024-01-16 13:30:00', shippingChannel:'ZYBQ_UPS', country:'德国', weight:0.8, weightUnit:'kg', outboundFee:10.00, basePrice:15.00, residentialFee:3.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:12.00, extraRemoteFee:5.00, fuelSurcharge:4.50, totalCost:49.50 },
-    { id:7, orderNo:'ORD20240101007', customerCode:'CUS004', carrier:'AMAZON', platformStore:'店铺D', itemCount:4, productInfo:'键盘 x1, 鼠标 x1, 鼠标垫 x1, USB线 x1', status:'shipped', costTime:'2024-01-17 08:45:00', shippingChannel:'ZYBQ_DS', country:'美国', weight:1.5, weightUnit:'kg', outboundFee:12.00, basePrice:16.00, residentialFee:3.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:5.00, totalCost:36.00 },
-    { id:8, orderNo:'ORD20240101008', customerCode:'CUS001', carrier:'FEDEX', platformStore:'店铺A', itemCount:1, productInfo:'自行车 x1', status:'pending_confirm', costTime:'2024-01-17 09:30:00', shippingChannel:'ZYBQ_FEDEX', country:'澳大利亚', weight:12.0, weightUnit:'kg', outboundFee:30.00, basePrice:40.00, residentialFee:8.00, oversizeFee:15.00, overweightFee:10.00, oversizedFee:20.00, remoteFee:15.00, extraRemoteFee:10.00, fuelSurcharge:16.00, totalCost:164.00 },
-    { id:9, orderNo:'ORD20240101009', customerCode:'CUS005', carrier:'GOFO', platformStore:'店铺E', itemCount:3, productInfo:'水杯 x3', status:'pending_pick', costTime:'2024-01-17 11:00:00', shippingChannel:'ZYBQ_SY', country:'日本', weight:1.0, weightUnit:'kg', outboundFee:8.00, basePrice:12.00, residentialFee:2.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:3.00, extraRemoteFee:0.00, fuelSurcharge:3.50, totalCost:28.50 },
-    { id:10, orderNo:'ORD20240101010', customerCode:'CUS003', carrier:'FEDEX', platformStore:'店铺C', itemCount:2, productInfo:'空气净化器 x1, 滤芯 x1', status:'shipped', costTime:'2024-01-17 14:20:00', shippingChannel:'ZYBQ_FEDEX', country:'美国', weight:6.5, weightUnit:'kg', outboundFee:22.00, basePrice:28.00, residentialFee:5.00, oversizeFee:0.00, overweightFee:5.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:9.00, totalCost:69.00 },
-    { id:11, orderNo:'ORD20240101011', customerCode:'CUS006', carrier:'LTL', platformStore:'店铺F', itemCount:1, productInfo:'沙发 x1', status:'pending_print', costTime:'2024-01-18 08:00:00', shippingChannel:'ZYBQ_DS', country:'美国', weight:35.0, weightUnit:'kg', outboundFee:50.00, basePrice:60.00, residentialFee:10.00, oversizeFee:30.00, overweightFee:25.00, oversizedFee:35.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:28.00, totalCost:238.00 },
-    { id:12, orderNo:'ORD20240101012', customerCode:'CUS002', carrier:'UPS', platformStore:'店铺B', itemCount:1, productInfo:'连衣裙 x1', status:'pending_allocate', costTime:'2024-01-18 09:45:00', shippingChannel:'ZYBQ_UPS', country:'法国', weight:0.5, weightUnit:'kg', outboundFee:8.00, basePrice:12.00, residentialFee:2.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:10.00, extraRemoteFee:0.00, fuelSurcharge:4.00, totalCost:36.00 },
-    { id:13, orderNo:'ORD20240101013', customerCode:'CUS007', carrier:'One-Touch', platformStore:'店铺G', itemCount:6, productInfo:'袜子 x6', status:'shipped', costTime:'2024-01-18 10:30:00', shippingChannel:'ZYBQ_SY', country:'美国', weight:0.6, weightUnit:'kg', outboundFee:6.00, basePrice:8.00, residentialFee:2.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:2.50, totalCost:18.50 },
-    { id:14, orderNo:'ORD20240101014', customerCode:'CUS001', carrier:'FEDEX', platformStore:'店铺A', itemCount:2, productInfo:'相机 x1, 存储卡 x1', status:'pending_review', costTime:'2024-01-18 13:15:00', shippingChannel:'ZYBQ_FEDEX', country:'加拿大', weight:1.8, weightUnit:'kg', outboundFee:14.00, basePrice:20.00, residentialFee:4.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:6.00, extraRemoteFee:0.00, fuelSurcharge:6.50, totalCost:50.50 },
-    { id:15, orderNo:'ORD20240101015', customerCode:'CUS004', carrier:'USPS', platformStore:'店铺D', itemCount:3, productInfo:'书籍 x3', status:'pending_confirm', costTime:'2024-01-19 08:30:00', shippingChannel:'ZYBQ_SY', country:'美国', weight:2.0, weightUnit:'kg', outboundFee:10.00, basePrice:14.00, residentialFee:3.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:4.50, totalCost:31.50 },
-    { id:16, orderNo:'ORD20240101016', customerCode:'CUS008', carrier:'AMAZON', platformStore:'店铺H', itemCount:1, productInfo:'电饭煲 x1', status:'shipped', costTime:'2024-01-19 09:00:00', shippingChannel:'ZYBQ_DS', country:'美国', weight:4.0, weightUnit:'kg', outboundFee:18.00, basePrice:24.00, residentialFee:5.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:7.50, totalCost:54.50 },
-    { id:17, orderNo:'ORD20240101017', customerCode:'CUS005', carrier:'FEDEX', platformStore:'店铺E', itemCount:1, productInfo:'音箱 x1', status:'pending_pick', costTime:'2024-01-19 11:30:00', shippingChannel:'ZYBQ_FEDEX', country:'英国', weight:3.0, weightUnit:'kg', outboundFee:15.00, basePrice:20.00, residentialFee:4.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:8.00, extraRemoteFee:0.00, fuelSurcharge:7.00, totalCost:54.00 },
-    { id:18, orderNo:'ORD20240101018', customerCode:'CUS006', carrier:'UPS', platformStore:'店铺F', itemCount:2, productInfo:'瑜伽垫 x1, 瑜伽砖 x1', status:'pending_print', costTime:'2024-01-19 14:00:00', shippingChannel:'ZYBQ_UPS', country:'德国', weight:2.5, weightUnit:'kg', outboundFee:14.00, basePrice:18.00, residentialFee:4.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:10.00, extraRemoteFee:5.00, fuelSurcharge:6.50, totalCost:57.50 },
-    { id:19, orderNo:'ORD20240101019', customerCode:'CUS007', carrier:'GOFO', platformStore:'店铺G', itemCount:4, productInfo:'零食礼包 x4', status:'shipped', costTime:'2024-01-20 08:15:00', shippingChannel:'ZYBQ_SY', country:'韩国', weight:3.5, weightUnit:'kg', outboundFee:16.00, basePrice:22.00, residentialFee:4.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:5.00, extraRemoteFee:0.00, fuelSurcharge:7.00, totalCost:54.00 },
-    { id:20, orderNo:'ORD20240101020', customerCode:'CUS008', carrier:'FEDEX', platformStore:'店铺H', itemCount:1, productInfo:'显示器 x1', status:'pending_allocate', costTime:'2024-01-20 10:45:00', shippingChannel:'ZYBQ_FEDEX', country:'美国', weight:8.0, weightUnit:'kg', outboundFee:25.00, basePrice:32.00, residentialFee:6.00, oversizeFee:10.00, overweightFee:0.00, oversizedFee:15.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:12.00, totalCost:100.00 }
+    { id:1, orderNo:'ORD20240101001', customerCode:'CUS001', carrier:'FEDEX', platformStore:'店铺A', itemCount:3, productInfo:'蓝牙耳机 x2, 手机壳 x1', status:'pending_confirm', costTime:'2024-01-15 10:30:00', shippingChannel:'ZYBQ_FEDEX', country:'美国', weight:2.5, weightUnit:'kg', outboundFee:15.00, basePrice:20.00, residentialFee:5.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:8.50, otherFees:{total:3.50, details:[{name:'手续费', amount:2.00},{name:'包装费', amount:1.50}]}, totalCost:52.00 },
+    { id:2, orderNo:'ORD20240101002', customerCode:'CUS002', carrier:'UPS', platformStore:'店铺B', itemCount:1, productInfo:'运动鞋 x1', status:'pending_pick', costTime:'2024-01-15 11:20:00', shippingChannel:'ZYBQ_UPS', country:'英国', weight:1.2, weightUnit:'kg', outboundFee:12.00, basePrice:18.00, residentialFee:3.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:5.00, extraRemoteFee:0.00, fuelSurcharge:6.00, otherFees:{total:0, details:[]}, totalCost:44.00 },
+    { id:3, orderNo:'ORD20240101003', customerCode:'CUS001', carrier:'FEDEX', platformStore:'店铺A', itemCount:2, productInfo:'平板电脑 x1, 保护套 x1', status:'pending_print', costTime:'2024-01-15 14:45:00', shippingChannel:'ZYBQ_FEDEX', country:'加拿大', weight:3.8, weightUnit:'kg', outboundFee:18.00, basePrice:25.00, residentialFee:5.00, oversizeFee:10.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:8.00, extraRemoteFee:0.00, fuelSurcharge:9.50, otherFees:{total:5.00, details:[{name:'清关费', amount:3.00},{name:'仓储费', amount:2.00}]}, totalCost:80.50 },
+    { id:4, orderNo:'ORD20240101004', customerCode:'CUS003', carrier:'USPS', platformStore:'店铺C', itemCount:5, productInfo:'T恤 x3, 短裤 x2', status:'pending_allocate', costTime:'2024-01-16 09:15:00', shippingChannel:'ZYBQ_SY', country:'美国', weight:4.2, weightUnit:'kg', outboundFee:20.00, basePrice:22.00, residentialFee:5.00, oversizeFee:0.00, overweightFee:8.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:7.50, otherFees:{total:0, details:[]}, totalCost:62.50 },
+    { id:5, orderNo:'ORD20240101005', customerCode:'CUS001', carrier:'FEDEX', platformStore:'店铺A', itemCount:1, productInfo:'电视机 x1', status:'shipped', costTime:'2024-01-16 10:00:00', shippingChannel:'ZYBQ_FEDEX', country:'美国', weight:15.0, weightUnit:'kg', outboundFee:35.00, basePrice:45.00, residentialFee:8.00, oversizeFee:20.00, overweightFee:15.00, oversizedFee:25.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:18.00, otherFees:{total:12.00, details:[{name:'保险费', amount:8.00},{name:'处理费', amount:4.00}]}, totalCost:178.00 },
+    { id:6, orderNo:'ORD20240101006', customerCode:'CUS002', carrier:'UPS', platformStore:'店铺B', itemCount:2, productInfo:'手表 x1, 表带 x1', status:'pending_review', costTime:'2024-01-16 13:30:00', shippingChannel:'ZYBQ_UPS', country:'德国', weight:0.8, weightUnit:'kg', outboundFee:10.00, basePrice:15.00, residentialFee:3.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:12.00, extraRemoteFee:5.00, fuelSurcharge:4.50, otherFees:{total:0, details:[]}, totalCost:49.50 },
+    { id:7, orderNo:'ORD20240101007', customerCode:'CUS004', carrier:'AMAZON', platformStore:'店铺D', itemCount:4, productInfo:'键盘 x1, 鼠标 x1, 鼠标垫 x1, USB线 x1', status:'shipped', costTime:'2024-01-17 08:45:00', shippingChannel:'ZYBQ_DS', country:'美国', weight:1.5, weightUnit:'kg', outboundFee:12.00, basePrice:16.00, residentialFee:3.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:5.00, otherFees:{total:2.50, details:[{name:'标签费', amount:2.50}]}, totalCost:38.50 },
+    { id:8, orderNo:'ORD20240101008', customerCode:'CUS001', carrier:'FEDEX', platformStore:'店铺A', itemCount:1, productInfo:'自行车 x1', status:'pending_confirm', costTime:'2024-01-17 09:30:00', shippingChannel:'ZYBQ_FEDEX', country:'澳大利亚', weight:12.0, weightUnit:'kg', outboundFee:30.00, basePrice:40.00, residentialFee:8.00, oversizeFee:15.00, overweightFee:10.00, oversizedFee:20.00, remoteFee:15.00, extraRemoteFee:10.00, fuelSurcharge:16.00, otherFees:{total:8.00, details:[{name:'清关费', amount:5.00},{name:'检疫费', amount:3.00}]}, totalCost:172.00 },
+    { id:9, orderNo:'ORD20240101009', customerCode:'CUS005', carrier:'GOFO', platformStore:'店铺E', itemCount:3, productInfo:'水杯 x3', status:'pending_pick', costTime:'2024-01-17 11:00:00', shippingChannel:'ZYBQ_SY', country:'日本', weight:1.0, weightUnit:'kg', outboundFee:8.00, basePrice:12.00, residentialFee:2.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:3.00, extraRemoteFee:0.00, fuelSurcharge:3.50, otherFees:{total:0, details:[]}, totalCost:28.50 },
+    { id:10, orderNo:'ORD20240101010', customerCode:'CUS003', carrier:'FEDEX', platformStore:'店铺C', itemCount:2, productInfo:'空气净化器 x1, 滤芯 x1', status:'shipped', costTime:'2024-01-17 14:20:00', shippingChannel:'ZYBQ_FEDEX', country:'美国', weight:6.5, weightUnit:'kg', outboundFee:22.00, basePrice:28.00, residentialFee:5.00, oversizeFee:0.00, overweightFee:5.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:9.00, otherFees:{total:0, details:[]}, totalCost:69.00 },
+    { id:11, orderNo:'ORD20240101011', customerCode:'CUS006', carrier:'LTL', platformStore:'店铺F', itemCount:1, productInfo:'沙发 x1', status:'pending_print', costTime:'2024-01-18 08:00:00', shippingChannel:'ZYBQ_DS', country:'美国', weight:35.0, weightUnit:'kg', outboundFee:50.00, basePrice:60.00, residentialFee:10.00, oversizeFee:30.00, overweightFee:25.00, oversizedFee:35.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:28.00, otherFees:{total:15.00, details:[{name:'搬运费', amount:10.00},{name:'上楼费', amount:5.00}]}, totalCost:253.00 },
+    { id:12, orderNo:'ORD20240101012', customerCode:'CUS002', carrier:'UPS', platformStore:'店铺B', itemCount:1, productInfo:'连衣裙 x1', status:'pending_allocate', costTime:'2024-01-18 09:45:00', shippingChannel:'ZYBQ_UPS', country:'法国', weight:0.5, weightUnit:'kg', outboundFee:8.00, basePrice:12.00, residentialFee:2.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:10.00, extraRemoteFee:0.00, fuelSurcharge:4.00, otherFees:{total:0, details:[]}, totalCost:36.00 },
+    { id:13, orderNo:'ORD20240101013', customerCode:'CUS007', carrier:'One-Touch', platformStore:'店铺G', itemCount:6, productInfo:'袜子 x6', status:'shipped', costTime:'2024-01-18 10:30:00', shippingChannel:'ZYBQ_SY', country:'美国', weight:0.6, weightUnit:'kg', outboundFee:6.00, basePrice:8.00, residentialFee:2.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:2.50, otherFees:{total:0, details:[]}, totalCost:18.50 },
+    { id:14, orderNo:'ORD20240101014', customerCode:'CUS001', carrier:'FEDEX', platformStore:'店铺A', itemCount:2, productInfo:'相机 x1, 存储卡 x1', status:'pending_review', costTime:'2024-01-18 13:15:00', shippingChannel:'ZYBQ_FEDEX', country:'加拿大', weight:1.8, weightUnit:'kg', outboundFee:14.00, basePrice:20.00, residentialFee:4.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:6.00, extraRemoteFee:0.00, fuelSurcharge:6.50, otherFees:{total:4.00, details:[{name:'保险费', amount:4.00}]}, totalCost:54.50 },
+    { id:15, orderNo:'ORD20240101015', customerCode:'CUS004', carrier:'USPS', platformStore:'店铺D', itemCount:3, productInfo:'书籍 x3', status:'pending_confirm', costTime:'2024-01-19 08:30:00', shippingChannel:'ZYBQ_SY', country:'美国', weight:2.0, weightUnit:'kg', outboundFee:10.00, basePrice:14.00, residentialFee:3.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:4.50, otherFees:{total:0, details:[]}, totalCost:31.50 },
+    { id:16, orderNo:'ORD20240101016', customerCode:'CUS008', carrier:'AMAZON', platformStore:'店铺H', itemCount:1, productInfo:'电饭煲 x1', status:'shipped', costTime:'2024-01-19 09:00:00', shippingChannel:'ZYBQ_DS', country:'美国', weight:4.0, weightUnit:'kg', outboundFee:18.00, basePrice:24.00, residentialFee:5.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:7.50, otherFees:{total:0, details:[]}, totalCost:54.50 },
+    { id:17, orderNo:'ORD20240101017', customerCode:'CUS005', carrier:'FEDEX', platformStore:'店铺E', itemCount:1, productInfo:'音箱 x1', status:'pending_pick', costTime:'2024-01-19 11:30:00', shippingChannel:'ZYBQ_FEDEX', country:'英国', weight:3.0, weightUnit:'kg', outboundFee:15.00, basePrice:20.00, residentialFee:4.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:8.00, extraRemoteFee:0.00, fuelSurcharge:7.00, otherFees:{total:3.00, details:[{name:'包装费', amount:3.00}]}, totalCost:57.00 },
+    { id:18, orderNo:'ORD20240101018', customerCode:'CUS006', carrier:'UPS', platformStore:'店铺F', itemCount:2, productInfo:'瑜伽垫 x1, 瑜伽砖 x1', status:'pending_print', costTime:'2024-01-19 14:00:00', shippingChannel:'ZYBQ_UPS', country:'德国', weight:2.5, weightUnit:'kg', outboundFee:14.00, basePrice:18.00, residentialFee:4.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:10.00, extraRemoteFee:5.00, fuelSurcharge:6.50, otherFees:{total:0, details:[]}, totalCost:57.50 },
+    { id:19, orderNo:'ORD20240101019', customerCode:'CUS007', carrier:'GOFO', platformStore:'店铺G', itemCount:4, productInfo:'零食礼包 x4', status:'shipped', costTime:'2024-01-20 08:15:00', shippingChannel:'ZYBQ_SY', country:'韩国', weight:3.5, weightUnit:'kg', outboundFee:16.00, basePrice:22.00, residentialFee:4.00, oversizeFee:0.00, overweightFee:0.00, oversizedFee:0.00, remoteFee:5.00, extraRemoteFee:0.00, fuelSurcharge:7.00, otherFees:{total:6.00, details:[{name:'关税', amount:4.00},{name:'检验费', amount:2.00}]}, totalCost:60.00 },
+    { id:20, orderNo:'ORD20240101020', customerCode:'CUS008', carrier:'FEDEX', platformStore:'店铺H', itemCount:1, productInfo:'显示器 x1', status:'pending_allocate', costTime:'2024-01-20 10:45:00', shippingChannel:'ZYBQ_FEDEX', country:'美国', weight:8.0, weightUnit:'kg', outboundFee:25.00, basePrice:32.00, residentialFee:6.00, oversizeFee:10.00, overweightFee:0.00, oversizedFee:15.00, remoteFee:0.00, extraRemoteFee:0.00, fuelSurcharge:12.00, otherFees:{total:0, details:[]}, totalCost:100.00 }
 ];
 
 const shippingChannelData = {
@@ -139,6 +140,41 @@ function applyFilters() {
     updateTotalAmount(filteredData);
 }
 
+// 渲染其他费用单元格（有值时蓝色展示，支持悬停查看明细）
+function renderOtherFeesCell(otherFees) {
+    if (!otherFees || otherFees.total === 0) {
+        return '<td class="px-3 py-3 text-gray-600 whitespace-nowrap">0.00</td>';
+    }
+    const detailsHtml = otherFees.details.map(d => `<div class="other-fees-detail-item"><span>${d.name}</span><span>${d.amount.toFixed(2)} USD</span></div>`).join('');
+    return `<td class="px-3 py-3 whitespace-nowrap other-fees-cell" onmouseenter="showOtherFeesTooltip(this, '${escapeHtml(detailsHtml)}')" onmouseleave="hideOtherFeesTooltip()">
+        <span class="other-fees-value">${otherFees.total.toFixed(2)}</span>
+    </td>`;
+}
+
+// 转义HTML
+function escapeHtml(str) {
+    return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// 显示其他费用弹窗
+function showOtherFeesTooltip(element, detailsHtml) {
+    hideOtherFeesTooltip();
+    const tooltip = document.createElement('div');
+    tooltip.className = 'other-fees-tooltip';
+    tooltip.id = 'otherFeesTooltip';
+    tooltip.innerHTML = '<div class="other-fees-tooltip-title">其他费用明细</div>' + detailsHtml.replace(/\\'/g, "'");
+    document.body.appendChild(tooltip);
+    const rect = element.getBoundingClientRect();
+    tooltip.style.left = rect.left + window.scrollX + 'px';
+    tooltip.style.top = rect.bottom + window.scrollY + 5 + 'px';
+}
+
+// 隐藏其他费用弹窗
+function hideOtherFeesTooltip() {
+    const tooltip = document.getElementById('otherFeesTooltip');
+    if (tooltip) tooltip.remove();
+}
+
 function renderPage() {
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize;
@@ -172,6 +208,7 @@ function renderPage() {
             <td class="px-3 py-3 text-gray-600 whitespace-nowrap">${item.remoteFee.toFixed(2)}</td>
             <td class="px-3 py-3 text-gray-600 whitespace-nowrap">${item.extraRemoteFee.toFixed(2)}</td>
             <td class="px-3 py-3 text-gray-600 whitespace-nowrap">${item.fuelSurcharge.toFixed(2)}</td>
+            ${renderOtherFeesCell(item.otherFees)}
             <td class="px-3 py-3 font-bold text-danger whitespace-nowrap">${item.totalCost.toFixed(2)}</td>
         `;
         tbody.appendChild(row);
@@ -211,7 +248,7 @@ function renderPagination() {
 
 function updateTotalAmount(data) {
     const total = data.reduce((sum, item) => sum + item.totalCost, 0);
-    document.getElementById('totalAmount').textContent = total.toLocaleString('zh-CN', { minimumFractionDigits: 2 }) + ' RMB';
+    document.getElementById('totalAmount').textContent = total.toLocaleString('zh-CN', { minimumFractionDigits: 2 }) + ' USD';
 }
 
 function handleStatusTab(el) {

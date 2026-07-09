@@ -88,7 +88,11 @@
                             </ul>
                             <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">3. 业务规则</h2>
                             <ul class="list-disc pl-6 text-gray-600 space-y-2">
-                                <li>总成本 = 出库费 + 基础价 + 住宅附加费 + 超长费 + 超重费 + 超大件费 + 偏远 + 超偏远 + 燃油附加费</li>
+                                <li>总费用 = 出库费 + 运输费 + 住宅附加费 + 超长费 + 超重费 + 超大件费 + 偏远 + 超偏远 + 燃油附加费 + 其他费用</li>
+                                <li>出库费 = 出库费 + 出库附加费</li>
+                                <li>运输费至燃油附加费：与取值费用一对一关系</li>
+                                <li>其他费用：所有未在列表展示的费用归类的汇总，有值时蓝色展示，鼠标悬停显示明细</li>
+                                <li>区间搜索：支持单边查询和区间段查询，最小值 < 最大值</li>
                                 <li>状态码逻辑：待发货 = 待确认/待拣货/待打印/待配货/待复核；已发货 = 已出库</li>
                                 <li>仓库选项根据当前账号绑定的仓库代码动态展示</li>
                                 <li>数据按费用发生时间倒序排列</li>
@@ -101,8 +105,8 @@
                                         <tr><td class="px-3 py-2">出库单号</td><td class="px-3 py-2">订单唯一标识</td><td class="px-3 py-2">字符型</td><td class="px-3 py-2">64</td></tr>
                                         <tr><td class="px-3 py-2">业务类型</td><td class="px-3 py-2">普通订单/退货订单</td><td class="px-3 py-2">枚举型</td><td class="px-3 py-2">32</td></tr>
                                         <tr><td class="px-3 py-2">承运商</td><td class="px-3 py-2">FEDEX/UPS/USPS等</td><td class="px-3 py-2">枚举型</td><td class="px-3 py-2">32</td></tr>
-                                        <tr><td class="px-3 py-2">出库费</td><td class="px-3 py-2">出库操作费用</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
-                                        <tr><td class="px-3 py-2">基础价</td><td class="px-3 py-2">基础运输价格</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">出库费</td><td class="px-3 py-2">出库费+出库附加费</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">运输费</td><td class="px-3 py-2">基础运输价格</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
                                         <tr><td class="px-3 py-2">住宅附加费</td><td class="px-3 py-2">住宅配送附加费</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
                                         <tr><td class="px-3 py-2">超长费</td><td class="px-3 py-2">超长包裹附加费</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
                                         <tr><td class="px-3 py-2">超重费</td><td class="px-3 py-2">超重包裹附加费</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
@@ -110,7 +114,8 @@
                                         <tr><td class="px-3 py-2">偏远</td><td class="px-3 py-2">偏远地区附加费</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
                                         <tr><td class="px-3 py-2">超偏远</td><td class="px-3 py-2">超偏远地区附加费</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
                                         <tr><td class="px-3 py-2">燃油附加费</td><td class="px-3 py-2">燃油附加费用</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
-                                        <tr><td class="px-3 py-2">总成本</td><td class="px-3 py-2">各项费用之和</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">其他费用</td><td class="px-3 py-2">未列出费用的汇总，有值时蓝色展示并支持悬停查看明细</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
+                                        <tr><td class="px-3 py-2">总费用</td><td class="px-3 py-2">各项费用之和（USD）</td><td class="px-3 py-2">数值型</td><td class="px-3 py-2">128</td></tr>
                                         <tr><td class="px-3 py-2">状态</td><td class="px-3 py-2">待确认/待拣货/待打印/待配货/待复核/已出库</td><td class="px-3 py-2">枚举型</td><td class="px-3 py-2">32</td></tr>
                                     </tbody>
                                 </table>
@@ -345,7 +350,7 @@ graph TD
                     </button>
                     <div class="flex items-center gap-4">
                         <span class="text-sm text-gray-600">总金额:</span>
-                        <span id="totalAmount" class="text-xl font-bold text-danger">0.00 RMB</span>
+                        <span id="totalAmount" class="text-xl font-bold text-danger">0.00 USD</span>
                     </div>
                 </div>
             </div>
@@ -377,7 +382,8 @@ graph TD
                                 <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">偏远</th>
                                 <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">超偏远</th>
                                 <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">燃油附加费</th>
-                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">总成本</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">总费用(USD)</th>
+                                <th class="px-3 py-3 text-left font-medium text-gray-700 whitespace-nowrap">总费用(USD)</th>
                             </tr>
                         </thead>
                         <tbody id="tableBody" class="divide-y divide-neutral-100"></tbody>
@@ -426,8 +432,8 @@ graph TD
                                     <tr class="hover:bg-gray-50"><td class="px-3 py-2">承运商</td><td class="px-3 py-2">下拉选择框</td><td class="px-3 py-2">FEDEX/UPS/USPS/AMAZON/GOFO/LTL/One-Touch/未知</td></tr>
                                     <tr class="hover:bg-gray-50"><td class="px-3 py-2">配送渠道</td><td class="px-3 py-2">下拉选择框</td><td class="px-3 py-2">ZYBQ_FEDEX/ZYBQ_UPS/ZYBQ_SY/ZYBQ_DS</td></tr>
                                     <tr class="hover:bg-gray-50"><td class="px-3 py-2">创建时间</td><td class="px-3 py-2">日期范围选择器</td><td class="px-3 py-2">筛选订单创建时间范围</td></tr>
-                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">重量区间</td><td class="px-3 py-2">数值范围输入框</td><td class="px-3 py-2">最小-最大重量筛选</td></tr>
-                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">费用区间</td><td class="px-3 py-2">数值范围输入框</td><td class="px-3 py-2">最小-最大费用筛选</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">重量区间</td><td class="px-3 py-2">数值范围输入框</td><td class="px-3 py-2">支持单边查询和区间段查询，最小值 < 最大值</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">费用区间</td><td class="px-3 py-2">数值范围输入框</td><td class="px-3 py-2">支持单边查询和区间段查询，最小值 < 最大值</td></tr>
                                     <tr class="hover:bg-gray-50"><td class="px-3 py-2">出库单号</td><td class="px-3 py-2">文本输入框</td><td class="px-3 py-2">支持多个精确匹配，空格隔开</td></tr>
                                 </tbody>
                             </table>
@@ -453,7 +459,7 @@ graph TD
                                 <thead class="bg-gray-50"><tr><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">字段</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">说明</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">数据来源</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">取值规则</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">显示格式</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">存储长度</th><th class="px-3 py-2 text-left font-medium text-gray-700 border-b">属性存储类型</th></tr></thead>
                                 <tbody class="divide-y divide-gray-100">
                                     <tr class="hover:bg-gray-50"><td class="px-3 py-2">出库单号</td><td class="px-3 py-2">系统生成的订单编号</td><td class="px-3 py-2">系统生成</td><td class="px-3 py-2">唯一标识</td><td class="px-3 py-2">文本显示</td><td class="px-3 py-2">64</td><td class="px-3 py-2">字符型</td></tr>
-                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">总成本</td><td class="px-3 py-2">订单总成本金额</td><td class="px-3 py-2">系统计算</td><td class="px-3 py-2">出库费+基础价+住宅附加费+超长费+超重费+超大件费+偏远+超偏远+燃油附加费</td><td class="px-3 py-2">金额格式（2位小数）</td><td class="px-3 py-2">128</td><td class="px-3 py-2">数值型</td></tr>
+                                    <tr class="hover:bg-gray-50"><td class="px-3 py-2">总费用</td><td class="px-3 py-2">订单总费用金额</td><td class="px-3 py-2">系统计算</td><td class="px-3 py-2">出库费+运输费+住宅附加费+超长费+超重费+超大件费+偏远+超偏远+燃油附加费+其他费用</td><td class="px-3 py-2">金额格式（2位小数）USD</td><td class="px-3 py-2">128</td><td class="px-3 py-2">数值型</td></tr>
                                     <tr class="hover:bg-gray-50"><td class="px-3 py-2">状态</td><td class="px-3 py-2">订单当前状态</td><td class="px-3 py-2">系统维护</td><td class="px-3 py-2">枚举值</td><td class="px-3 py-2">状态徽章</td><td class="px-3 py-2">32</td><td class="px-3 py-2">枚举型</td></tr>
                                 </tbody>
                             </table>
@@ -475,7 +481,7 @@ graph TD
                 <div class="export-select-all">
                     <label class="flex items-center gap-2 cursor-pointer font-medium">
                         <input type="checkbox" id="exportSelectAll" checked onchange="handleExportSelectAll(this)">
-                        <span>全选 已选择 <span id="exportSelectedCount">22</span> 个字段</span>
+                        <span>全选 已选择 <span id="exportSelectedCount">23</span> 个字段</span>
                     </label>
                 </div>
                 <div class="export-fields-grid" id="exportFieldsGrid">
